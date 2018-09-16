@@ -9,7 +9,7 @@ RUN mkdir -p ${APP_DIR} ${DATA_DIR}
 
 VOLUME ${DATA_DIR}
 
-COPY ../jwdownload ${APP_DIR}
+COPY jwdownload.py ${APP_DIR}
 
 WORKDIR ${APP_DIR}
 
