@@ -1,5 +1,6 @@
 import argparse
 import json
+import ssl
 import os
 from pathlib import Path
 import re
@@ -11,6 +12,9 @@ BASE_DIR = '/app/'
 DATA_DIR = '/data/'
 SEGMENTS_FILE_PATH = os.getenv('SEGMENTS_FILE_PATH', DATA_DIR + 'meta/segments.json')
 file_names = []
+ctx = ssl.create_default_context()
+ctx.check_hostname = False
+ctx.verify_mode = ssl.CERT_NONE
 
 
 def retry_download(func):
@@ -121,7 +125,8 @@ class JWDownloader:
     @retry_download
     def download_segment(self, curr_url, curr_file_path):
         try:
-            urllib.request.urlretrieve(curr_url, curr_file_path)
+            with urllib.request.urlopen(curr_url, context=ctx) as u, open(curr_file_path, 'wb') as f:
+                f.write(u.read())
         except KeyboardInterrupt:
             remove(curr_file_path)
             exit(1)
@@ -137,7 +142,7 @@ class JWDownloader:
     def get_code(url, idx):
         req = urllib.request.Request(url.format(idx), method='HEAD')
         try:
-            with urllib.request.urlopen(req) as response:
+            with urllib.request.urlopen(req, context=ctx) as response:
                 code = response.getcode()
         except urllib.error.HTTPError:
             code = 404
