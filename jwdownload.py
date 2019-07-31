@@ -11,6 +11,7 @@ from os import system, remove
 BASE_DIR = '/app/'
 DATA_DIR = '/data/'
 SEGMENTS_FILE_PATH = os.getenv('SEGMENTS_FILE_PATH', DATA_DIR + 'meta/segments.json')
+DEFAULT_OUTPUT_NAME = f'video{int(time.time())}.mp4'
 file_names = []
 ctx = ssl.create_default_context()
 ctx.check_hostname = False
@@ -44,7 +45,11 @@ class SegmentsAction(argparse.Action):
 
 class JWDownloader:
     def __init__(self, **kwargs):
-        self.output_file_name = re.search('/([^/]+\.mp4)/', kwargs['url']).group(1)
+        try:
+            self.output_file_name = re.search('/([^/]+\.mp4)/', kwargs['url']).group(1)
+        except AttributeError:
+            self.output_file_name = DEFAULT_OUTPUT_NAME
+
         self.url_parts = re.search('(.*/)(.*)$', kwargs['url'])
         self.url_pattern = self.url_parts.group(1) + '{}'
         self.name = self.cleanup_name(kwargs.get('name'))
