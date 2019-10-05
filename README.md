@@ -15,7 +15,7 @@ $ docker run --rm --name=jw -v `pwd`:/data xdrew/jw https://video.com/c/xxx.mp4/
 ```
 usage: docker run --rm --name=jw -v `pwd`:/data xdrew/jw [-h] [--name NAME] [--first-segment FIRST_SEGMENT]
                      [--last-segment LAST_SEGMENT] [--segments TOTAL_SEGMENTS]
-                     [--no-cleanup] [--skip-downloaded]
+                     [--no-cleanup] [--skip-downloaded] [--chunk-file-name CHUNK_FILE_NAME]
                      url
 
 Download video in jwplayer format
@@ -33,6 +33,8 @@ optional arguments:
                         Last segment index (73)
   --segments TOTAL_SEGMENTS
                         Total segment amount to fetch. (73)
+  --chunk-file-name CHUNK_FILE_NAME
+                        Custom chunk file name (my_video.mp4)
   --no-cleanup          Do not delete segments
   --skip-downloaded     Do not process videos with existing output name
 ```
