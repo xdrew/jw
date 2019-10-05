@@ -46,7 +46,7 @@ class SegmentsAction(argparse.Action):
 class JWDownloader:
     def __init__(self, **kwargs):
         try:
-            self.output_file_name = re.search('/([^/]+\.mp4)/', kwargs['url']).group(1)
+            self.output_file_name = kwargs.get('chunk_file_name') or re.search('/([^/]+\.mp4)/', kwargs['url']).group(1)
         except AttributeError:
             self.output_file_name = DEFAULT_OUTPUT_NAME
 
@@ -230,6 +230,10 @@ if __name__ == "__main__":
                              help='Do not process videos with existing output name',
                              required=False,
                              action='store_true')
+    args_parser.add_argument('--chunk-file-name',
+                             dest="chunk_file_name",
+                             help='Custom chunk file name',
+                             required=False)
     args = args_parser.parse_args()
 
     downloader = JWDownloader(**vars(args))
