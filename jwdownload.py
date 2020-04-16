@@ -58,6 +58,7 @@ class JWDownloader:
         self.first_segment = kwargs.get('first_segment')
         self.total_segments = kwargs.get('total_segments')
         self.skip_downloaded = kwargs.get('skip_downloaded')
+        self.segment_zero_fill = int(kwargs.get('segment_zero_fill', 0))
 
     def download(self):
         if self.skip_downloaded and os.path.exists(DATA_DIR + self.name):
@@ -109,7 +110,7 @@ class JWDownloader:
 
     def get_segment(self, segment_pattern, segment_idx, from_fs_segments_in_a_row):
         curr_file_path = (DATA_DIR + '{}_' + segment_pattern).format(self.output_file_name, segment_idx)
-        curr_url = self.url_pattern.format(segment_pattern.format(segment_idx))
+        curr_url = self.url_pattern.format(segment_pattern.format(str(segment_idx).zfill(self.segment_zero_fill)))
         if os.path.exists(curr_file_path):
             from_fs_segments_in_a_row.append(segment_idx)
             return curr_file_path
@@ -137,7 +138,7 @@ class JWDownloader:
             exit(1)
 
     def download_segments(self):
-        segment_pattern = re.sub('\d+', '{}', self.url_parts.group(2))
+        segment_pattern = re.sub('\d+\.', '{}.', self.url_parts.group(2))
         from_fs_segments_in_a_row = []
         for i in range(self.first_segment, self.get_last_segment(self.url_pattern.format(segment_pattern)) + 1):
             file_names.append(self.get_segment(segment_pattern, i, from_fs_segments_in_a_row))
@@ -164,7 +165,7 @@ class JWDownloader:
             i += 1
             if skip and idx < skip:
                 continue
-            code = self.get_code(url, idx)
+            code = self.get_code(url, str(idx).zfill(self.segment_zero_fill))
         if step == 1:
             return idx - step
         return self.get_last_index(url, int(step / 10), (idx - step) if idx != step else 0)
@@ -233,6 +234,11 @@ if __name__ == "__main__":
     args_parser.add_argument('--chunk-file-name',
                              dest="chunk_file_name",
                              help='Custom chunk file name',
+                             required=False)
+    args_parser.add_argument('--segment-zero-fill',
+                             dest="segment_zero_fill",
+                             help='Fill segment id with zeros',
+                             default=0,
                              required=False)
     args = args_parser.parse_args()
 
